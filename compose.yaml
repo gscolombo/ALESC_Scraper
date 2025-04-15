@@ -1,0 +1,10 @@
+
+services:
+  main:
+    build: .
+    tty: true
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: ./src
