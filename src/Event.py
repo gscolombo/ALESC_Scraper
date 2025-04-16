@@ -2,10 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-
-class Contact(BaseModel):
-    phone_number: int | None
-    email: str | None
+from Contact import Contact
 
 
 class Event(BaseModel):
