@@ -7,4 +7,4 @@ services:
       watch:
         - action: sync
           path: ./src
-          target: ./src
+          target: /home/datapolicy/src
