@@ -1,5 +1,7 @@
 import sys
 from typing import Literal
+import re
+
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
@@ -15,9 +17,9 @@ def get_event_data(field: Literal["titulo-longo", "local-do-evento", "data-agend
 
     match(field):
         case "titulo-longo":
-            return t.find("strong").text
+            return t.find("strong").text.strip()
         case "local-do-evento":
-            return t.text
+            return t.text.strip()
         case "data-agenda-2":
             time_range = t.find("span", class_="date-display-range")
             if time_range:
@@ -32,13 +34,36 @@ def get_event_data(field: Literal["titulo-longo", "local-do-evento", "data-agend
                 "end": None
             }
         case "resp-reserva":
-            if t:
-                organizer, phone_number, email = t.text.split("\n")
-                return {
-                    "organizer": organizer,
-                    "phone_number": phone_number,
-                    "email": email
-                }
+            def remove_escape_sequences(s: str): return re.sub(
+                "\\xa0|\\t|\\r|", "", s
+            ).strip() or None
+
+            def format_phone_number(s: str):
+                s = re.sub("\D", "", s).strip()
+
+                match(len(s)):
+                    case 11:
+                        return f"({s[:2]}) {s[2:-4]}-{s[7:]}"
+                    case 10:
+                        return f"({s[:2]}) {s[2:-4]}-{s[6:]}"
+                    case 9:
+                        return f"{s[2:-4]}-{s[6:]}"
+                    case 8:
+                        return f"{s[:4]}-{s[4:]}"
+                    case _:
+                        return s
+
+            organizer, phone_number, email = list(
+                map(remove_escape_sequences, t.text.split("\n"))) if t is not None else [None]*3
+
+            if phone_number is not None:
+                phone_number = format_phone_number(phone_number)
+
+            return {
+                "organizer": organizer,
+                "phone_number": phone_number,
+                "email": email
+            }
 
 
 def read_panel_events(panel: Tag) -> list[Event]:
