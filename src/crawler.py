@@ -4,6 +4,9 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
+from Event import Event
+from Contact import Contact
+
 BASE_URL = "https://www.alesc.sc.gov.br/"
 
 
@@ -38,7 +41,7 @@ def get_event_data(field: Literal["titulo-longo", "local-do-evento", "data-agend
                 }
 
 
-def read_panel_events(panel: Tag) -> dict:
+def read_panel_events(panel: Tag) -> list[Event]:
     events = panel.find(
         "ul", class_="list-unstyled"
     ).find_all("li")
@@ -49,10 +52,19 @@ def read_panel_events(panel: Tag) -> dict:
               "resp-reserva"
               ]
 
-    return [{
+    raw_data = [{
         field: get_event_data(field, event)
         for field in fields
     } for event in events]
+
+    return [Event(title=data["titulo-longo"],
+                  start_date=data["data-agenda-2"]["start"],
+                  end_date=data["data-agenda-2"]["end"],
+                  local=data["local-do-evento"],
+                  organizer=data["resp-reserva"]["organizer"],
+                  contact=Contact(phone_number=data["resp-reserva"]["phone_number"],
+                                  email=data["resp-reserva"]["email"]))
+            for data in raw_data]
 
 
 def scrape_page(page: BeautifulSoup):
