@@ -6,7 +6,7 @@ Minha entrega para o teste técnico da **DataPolicy** para a vaga de desenvolved
 ## Instruções para execução
 Para evitar problemas de incompatibilidade, é recomendado a execução do programa em um container Docker. Instruções de instalação podem ser consultadas [aqui](https://docs.docker.com/engine/install/).
 
-O *script* `start.sh` pode ser utilizado com o comando `sh` para construir a imagem definida no `Dockerfile` e executar o programa, com todas as dependências definidas no arquivo `requirements.txt` já instaladas. \
+Em ambientes Linux, o *script* `start.sh` pode ser utilizado com o comando `sh` para construir a imagem definida no `Dockerfile` e executar o programa, com todas as dependências definidas no arquivo `requirements.txt` já instaladas. \
 A imagem é construída somente se não estiver disponível no *host*.
 
 ```sh
@@ -22,11 +22,28 @@ if [ -z "$(docker images -q $image 2> /dev/null)" ]; then
 fi
 echo "\n"
 clear
-docker run -itv ./data:/home/datapolicy/data $image python src/main.py
+docker run -itv $PWD/data:/home/datapolicy/data $image python src/main.py
 ```
 
+No Windows, o [Git Bash](https://git-scm.com/) pode ser utilizado para execução do *script*. Além disso, pode ser necessário prefixar o comando `sh` com `winpty`, como abaixo.
+
+```sh
+winpty sh start.sh
+```
 Para obtenção e uso dos dados extraídos no *host*, a execução do container é configurada com uma montagem de ligação (*bind mount*) na pasta `data`, criada automaticamente caso não exista. \
 Ao final da execução do programa, os dados em formato JSON deverão estar contidos nessa pasta.
+
+Também é possível rodar o *script* Python diretamente, após instalar as dependências em `requirements.txt`.
+
+```sh
+pip install -r requirements
+
+python src/main.py # No Windows
+python3 src/main.py # Em ambientes Linux
+```
+A pasta `data` também será criada automaticamente nesse caso.
+
+
 
 ## Observações
 O arquivo `compose.yaml` foi utilizado somente para facilitar o desenvolvimento no ambiente do container. Não é necessário utilizá-lo para executar o programa.
