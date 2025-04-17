@@ -1,4 +1,4 @@
-#! usr/bin/sh
+#! /usr/bin/sh
 
 image="gscolombo/alesc-crawler:latest"
 
