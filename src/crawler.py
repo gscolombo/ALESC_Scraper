@@ -1,4 +1,3 @@
-import sys
 from typing import Literal
 import re
 
@@ -113,23 +112,31 @@ def download_url(url: str) -> BeautifulSoup:
 
 
 def crawler(start_date: str):
-    print("Downloading first page...")
+    print("Requesting first page...")
     first_page = download_url(
         BASE_URL + f"agenda?data_in[value][date]={start_date}&data_fim[value][date]=&titulo=&local=All")
 
     pagination = first_page.find("ul", class_="pagination")
     pages = [first_page]
     if pagination:
-        print("Pagination found. Downloading next pages...")
+        print("Pagination found. Requesting next pages...")
+
+        def get_page_number_from_href(
+            t: str): return int(t.split("&")[-1].split("=")[-1]) + 1
+
+        last_page_href = (first_page
+                          .find("li", class_="pager-last")
+                          .a.get("href"))
+        last_page_number = get_page_number_from_href(last_page_href)
 
         while (li := pages[-1].find("li", class_="next")) is not None:
             resource = li.a.get("href")
             url = BASE_URL + resource
-            print(f"Downloading {url}\033[K", end="\r")
+            page_number = get_page_number_from_href(resource)
+            print(
+                f"Requesting page {page_number} of {last_page_number}\033[K", end="\r")
             page = download_url(url)
             pages.append(page)
 
-        print(f"\n{len(pages)} pages found.")
-
-    print("Scraping pages...")
+    print("\nScraping pages...")
     return [scrape_page(page) for page in pages]
