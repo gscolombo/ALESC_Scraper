@@ -6,12 +6,12 @@ Minha entrega para o teste técnico da **DataPolicy** para a vaga de desenvolved
 ## Instruções para execução
 Para evitar problemas de incompatibilidade, é recomendado a execução do programa em um container Docker. Instruções de instalação podem ser consultadas [aqui](https://docs.docker.com/engine/install/).
 
-O *script* `start.sh` pode ser utilizado para construir a imagem definida no `Dockerfile` e executar o programa, com todas as dependências definidas no arquivo `requirements.txt` já instaladas. \
+O *script* `start.sh` pode ser utilizado com o comando `sh` para construir a imagem definida no `Dockerfile` e executar o programa, com todas as dependências definidas no arquivo `requirements.txt` já instaladas. \
 A imagem é construída somente se não estiver disponível no *host*.
 
 ```sh
 # ./start.sh
-#! usr/bin/sh
+#! /usr/bin/sh
 
 image="gscolombo/alesc-crawler:latest"
 
