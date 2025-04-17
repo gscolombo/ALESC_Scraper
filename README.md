@@ -22,7 +22,7 @@ if [ -z "$(docker images -q $image 2> /dev/null)" ]; then
 fi
 echo "\n"
 clear
-docker run -itv --rm $PWD/data:/home/datapolicy/data $image python src/main.py
+docker run --rm -itv $PWD/data:/home/datapolicy/data $image python src/main.py
 ```
 
 No Windows, o [Git Bash](https://git-scm.com/) pode ser utilizado para execução do *script*. Além disso, pode ser necessário prefixar o comando `sh` com `winpty`, como abaixo.
