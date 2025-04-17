@@ -12,8 +12,10 @@ BASE_URL = "https://www.alesc.sc.gov.br/"
 
 
 def get_event_data(field: Literal["titulo-longo", "local-do-evento", "data-agenda-2", "resp-reserva"], event: Tag) -> str:
+    # Find event field with data
     t = event.find("div", class_=f"views-field-field-{field}")
 
+    # Get and format data based on field
     match(field):
         case "titulo-longo":
             return t.find("strong").text.strip()
@@ -66,6 +68,7 @@ def get_event_data(field: Literal["titulo-longo", "local-do-evento", "data-agend
 
 
 def read_panel_events(panel: Tag) -> list[Event]:
+    # Get all events of a panel
     events = panel.find(
         "ul", class_="list-unstyled"
     ).find_all("li")
@@ -76,26 +79,29 @@ def read_panel_events(panel: Tag) -> list[Event]:
               "resp-reserva"
               ]
 
-    raw_data = [{
+    # Read data of each event
+    events = [{
         field: get_event_data(field, event)
         for field in fields
     } for event in events]
 
-    return [Event(title=data["titulo-longo"],
-                  start_date=data["data-agenda-2"]["start"],
-                  end_date=data["data-agenda-2"]["end"],
-                  local=data["local-do-evento"],
-                  organizer=data["resp-reserva"]["organizer"],
-                  contact=Contact(phone_number=data["resp-reserva"]["phone_number"],
-                                  email=data["resp-reserva"]["email"]))
-            for data in raw_data]
+    return [Event(title=event["titulo-longo"],
+                  start_date=event["data-agenda-2"]["start"],
+                  end_date=event["data-agenda-2"]["end"],
+                  local=event["local-do-evento"],
+                  organizer=event["resp-reserva"]["organizer"],
+                  contact=Contact(phone_number=event["resp-reserva"]["phone_number"],
+                                  email=event["resp-reserva"]["email"]))
+            for event in events]
 
 
 def scrape_page(page: BeautifulSoup):
+    # Get event content in page
     content = (page
                .find("div", class_="row")
                .find("div", class_="view-content"))
 
+    # Read every event from every panel in the page
     return [read_panel_events(panel)
             for panel in content.find_all("div", class_="panel panel-default")]
 
@@ -106,6 +112,7 @@ def get_url(start_date: str, page: int = None):
 
 
 def download_url(url: str) -> BeautifulSoup:
+    # Request and parse HTML page
     res = requests.get(url)
     if (res.status_code == 200):
         return BeautifulSoup(res.text, "html.parser")
@@ -129,6 +136,7 @@ def crawler(start_date: str):
                           .a.get("href"))
         last_page_number = get_page_number_from_href(last_page_href)
 
+        # Request pages while the "next" button exists (otherwise, it's the last page)
         while (li := pages[-1].find("li", class_="next")) is not None:
             resource = li.a.get("href")
             url = BASE_URL + resource
