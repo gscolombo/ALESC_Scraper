@@ -9,4 +9,4 @@ if [ -z "$(docker images -q $image 2> /dev/null)" ]; then
 fi
 echo "\n"
 clear
-docker run --rm -itv $PWD/data:/home/datapolicy/data $image python src/main.py
+docker run --rm -itv /$PWD/data:/home/datapolicy/data $image python src/main.py
