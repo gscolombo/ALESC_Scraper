@@ -8,3 +8,8 @@ services:
         - action: sync
           path: ./src
           target: /home/datapolicy/src
+    volumes:
+      - type: bind
+        source: ./data
+        target: /home/datapolicy/data
+        
