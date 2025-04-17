@@ -22,8 +22,8 @@ if __name__ == "__main__":
     if start_date is not None:
         print(f"Start date: {start_date}")
 
-        print("Data retrieved.")
         pages = crawler(start_date)
+        print("Data retrieved.")
 
         print("Flattening data...")
         data = [
